@@ -1,0 +1,131 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+
+gitlab_urls:
+  api: http://gitlab.mmtt.fr/api/v4
+  download: http://gitlab.mmtt.fr
+  skip_tls_verify: true
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    #- docker login -u {{ .Env.DOCKER_HUB_LOGIN }} -p {{ .Env.DOCKER_HUB_PASSWORD }}
+    - bash go-mod-tidy.sh
+    - make all
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+nfpms:
+  # note that this is an array of nfpm configs
+  -
+    # ID of the nfpm config, must be unique.
+    # Defaults to "default".
+    id: etcd-shell
+    # You can change the name of the package.
+    # This is parsed with the Go template engine and the following variables
+    # are available:
+    # - ProjectName
+    # - Tag
+    # - Version (Git tag without `v` prefix)
+    # - Os
+    # - Arch
+    # - Arm (ARM version)
+    # - Env (environment variables)
+    # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
+    file_name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+
+    # Your app's vendor.
+    # Default is empty.
+    # vendor: 
+
+    # Your app's homepage.
+    # Default is empty.
+    homepage: http://gitlab.mmtt.fr/AI/ia-parc/tools/etcd-shell
+
+    # Your app's maintainer (probably you).
+    # Default is empty.
+    maintainer: Bertrand Louargant
+
+    # Your app's description.
+    # Default is empty.
+    description: ETCD shell
+
+    # Your app's license.
+    # Default is empty.
+    license:
+
+    # Formats to be generated.
+    formats:
+      - deb
+      - rpm
+      - apk
+
+    # contents:
+    #   - src: ./app/completion.bash
+    #     dst: /usr/share/bash-completion/completions/etcd-shell
+    #     file_info:
+    #       mode: 0644
+    #   - src: ./app/completion.fish
+    #     dst: /usr/share/fish/vendor_completions.d/etcd-shell.fish
+    #     file_info:
+    #       mode: 0644
+    #   - src: ./app/completion.zsh
+    #     dst:  /usr/share/zsh/vendor-completions/etcd-shell
+    #     file_info:
+    #       mode: 0644
+
+# dockers:
+#   - image_templates:
+#     - "etcd-shell:{{ .Tag }}"
+#     - "etcd-shell:{{ .Major }}"
+#     - "etcd-shell:{{ .Major }}.{{ .Minor }}"
+#     build_flag_templates:
+#     - "--pull"
+#     - "--label=org.opencontainers.image.created={{.Date}}"
+#     - "--label=org.opencontainers.image.title={{.ProjectName}}"
+#     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+#     - "--label=org.opencontainers.image.version={{.Version}}"
+
+archives:
+  - 
+    id: etcd-shell
+    # Can be used to change the archive formats for specific GOOSs.
+    # Most common use case is to archive as zip on Windows.
+    # Default is empty.
+    format_overrides:
+      - goos: windows
+        format: zip
+    rlcp: true
+    files:
+      - app/*
+      
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^app:'
+
+# modelines, feel free to remove those if you don't want/use them:
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
