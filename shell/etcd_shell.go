@@ -9,6 +9,16 @@ import (
 	"github.com/c-bata/go-prompt/completer"
 )
 
+var (
+	Endpointlist string
+	User         string
+	Password     string
+	UseTls       bool
+	Pwd          string
+	AllPaths     []string
+	RootPath     string
+)
+
 func handleExit() {
 	rawModeOff := exec.Command("/bin/stty", "-raw", "echo")
 	rawModeOff.Stdin = os.Stdin
@@ -34,7 +44,7 @@ func RunShell() {
 		prompt.OptionTitle("etcd-shell: interactive etcd client"),
 		//prompt.OptionPrefix(">>> "),
 		prompt.OptionLivePrefix(livePrefix),
-		prompt.OptionPrefixTextColor(prompt.DarkBlue),
+		prompt.OptionPrefixTextColor(prompt.Brown),
 		prompt.OptionInputTextColor(prompt.Yellow),
 		prompt.OptionCompletionWordSeparator(completer.FilePathCompletionSeparator),
 	)
@@ -42,10 +52,14 @@ func RunShell() {
 }
 
 func livePrefix() (prefix string, useLivePrefix bool) {
+	dot := "❖"
+	if Endpointlist == "" {
+		dot = "?"
+	}
 	if len(Pwd) > 0 {
-		prefix = fmt.Sprintf("%v ❖ ", Pwd)
+		prefix = fmt.Sprintf("%v %s ", Pwd, dot)
 	} else {
-		prefix = "~ ❖ "
+		prefix = fmt.Sprintf("~ %s ", dot)
 	}
 	useLivePrefix = true
 	return

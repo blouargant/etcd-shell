@@ -27,26 +27,70 @@ func (c *Completer) Executor(s string) {
 	}
 
 	args := strings.Split(s, " ")
-	switch args[0] {
-	case "cp":
-		c.cp(args)
-	case "rm":
-		c.rm(args)
-	case "set":
-		c.set(args)
-	case "ls":
-		c.ls(args)
-	case "cat":
-		c.cat(args)
-	case "watch":
-		c.watch(args)
-	case "cd":
-		c.cd(args)
-	case "dump":
-		c.dump(args)
-	case "pwd":
-		fmt.Println(Pwd)
+	if Endpointlist == "" {
+		if args[0] == "connect" {
+			c.connect(args)
+		}
+	} else {
+		switch args[0] {
+		case "cp":
+			c.cp(args)
+		case "rm":
+			c.rm(args)
+		case "set":
+			c.set(args)
+		case "ls":
+			c.ls(args)
+		case "cat":
+			c.cat(args)
+		case "watch":
+			c.watch(args)
+		case "cd":
+			c.cd(args)
+		case "dump":
+			c.dump(args)
+		case "disconnect":
+			c.disconnect()
+		case "pwd":
+			fmt.Println(Pwd)
+		}
 	}
+}
+
+func (c *Completer) connect(args []string) {
+	var i int = 0
+	max := len(args)
+	for i < max {
+		if args[i] == "-e" || args[i] == "--endpoints" {
+			if i+1 < max {
+				Endpointlist = args[i+1]
+			} else {
+				log.Fatal("missing enpoints settings")
+			}
+		} else if args[i] == "-u" || args[i] == "--user" {
+			if i+1 < max {
+				User = args[i+1]
+			} else {
+				log.Fatal("missing user setting")
+			}
+		} else if args[i] == "-p" || args[i] == "--Password" {
+			if i+1 < max {
+				Password = args[i+1]
+			} else {
+				log.Fatal("missing password setting")
+			}
+		} else if args[i] == "-t" || args[i] == "--tls" {
+			UseTls = true
+		}
+		i += 1
+	}
+	connectEtcd(c.etcd)
+}
+
+func (c *Completer) disconnect() {
+	c.etcd = nil
+	fmt.Printf("Closed connection to %s\n", Endpointlist)
+	Endpointlist = ""
 }
 
 func (c *Completer) cp(args []string) {

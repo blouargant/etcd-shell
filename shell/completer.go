@@ -10,33 +10,26 @@ import (
 	"github.com/c-bata/go-prompt"
 )
 
-var (
-	Endpointlist string
-	User         string
-	Password     string
-	UseTls       bool
-	Pwd          string
-	AllPaths     []string
-	RootPath     string
-)
-
 type Completer struct {
-	etcd   *etcd_client.Etcd
-	Prompt *prompt.Prompt
+	etcd *etcd_client.Etcd
+}
+
+func connectEtcd(etcd *etcd_client.Etcd) {
+	fmt.Printf("connecting to endpoints %v\n", Endpointlist)
+	Pwd = ""
+	etcd.Connect(Endpointlist, User, Password, UseTls)
+	res, err := etcd.GetObject(Pwd)
+	if err == nil {
+		setRoot(res)
+	} else {
+		log.Fatal(err)
+	}
 }
 
 func NewCompleter() (*Completer, error) {
 	etcd := &etcd_client.Etcd{}
-	Pwd = ""
 	if Endpointlist != "" {
-		fmt.Printf("connecting to endpoints %v\n", Endpointlist)
-		etcd.Connect(Endpointlist, User, Password, UseTls)
-		res, err := etcd.GetObject(Pwd)
-		if err == nil {
-			setRoot(res)
-		} else {
-			log.Fatal(err)
-		}
+		connectEtcd(etcd)
 	}
 	return &Completer{
 		etcd: etcd,
@@ -46,6 +39,9 @@ func NewCompleter() (*Completer, error) {
 func (c *Completer) Complete(d prompt.Document) []prompt.Suggest {
 	if d.TextBeforeCursor() == "" {
 		if d.LastKeyStroke().String() == "Tab" {
+			if Endpointlist == "" {
+				return connCmd
+			}
 			return commands
 		}
 		//return commands
