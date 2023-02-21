@@ -5,6 +5,8 @@ package main
 
 import (
 	"etcd-shell/cmd"
+	//_ "etcd-shell/cmd/completion"
+	_ "etcd-shell/cmd/connect"
 )
 
 func main() {

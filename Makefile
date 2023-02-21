@@ -1,4 +1,4 @@
-all: dirs app
+all: dirs app completion
 
 .PHONY: all clean app install uninstall
 

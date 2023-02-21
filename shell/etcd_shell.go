@@ -1,7 +1,6 @@
-package cmd
+package shell
 
 import (
-	"etcd-shell/shell"
 	"fmt"
 	"os"
 	"os/exec"
@@ -17,10 +16,10 @@ func handleExit() {
 	rawModeOff.Wait()
 }
 
-func runShell() {
+func RunShell() {
 	defer handleExit()
 
-	c, err := shell.NewCompleter()
+	c, err := NewCompleter()
 	if err != nil {
 		fmt.Println("error", err)
 		os.Exit(1)
@@ -43,8 +42,8 @@ func runShell() {
 }
 
 func livePrefix() (prefix string, useLivePrefix bool) {
-	if len(shell.Pwd) > 0 {
-		prefix = fmt.Sprintf("%v ❖ ", shell.Pwd)
+	if len(Pwd) > 0 {
+		prefix = fmt.Sprintf("%v ❖ ", Pwd)
 	} else {
 		prefix = "~ ❖ "
 	}

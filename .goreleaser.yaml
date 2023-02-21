@@ -1,10 +1,4 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
 
-gitlab_urls:
-  api: http://gitlab.mmtt.fr/api/v4
-  download: http://gitlab.mmtt.fr
-  skip_tls_verify: true
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -48,7 +42,7 @@ nfpms:
 
     # Your app's homepage.
     # Default is empty.
-    homepage: http://gitlab.mmtt.fr/AI/ia-parc/tools/etcd-shell
+    homepage: https://github.com/blouargant/etcd-shell
 
     # Your app's maintainer (probably you).
     # Default is empty.
@@ -60,7 +54,7 @@ nfpms:
 
     # Your app's license.
     # Default is empty.
-    license:
+    license: Apache License Version 2.0
 
     # Formats to be generated.
     formats:
@@ -68,19 +62,19 @@ nfpms:
       - rpm
       - apk
 
-    # contents:
-    #   - src: ./app/completion.bash
-    #     dst: /usr/share/bash-completion/completions/etcd-shell
-    #     file_info:
-    #       mode: 0644
-    #   - src: ./app/completion.fish
-    #     dst: /usr/share/fish/vendor_completions.d/etcd-shell.fish
-    #     file_info:
-    #       mode: 0644
-    #   - src: ./app/completion.zsh
-    #     dst:  /usr/share/zsh/vendor-completions/etcd-shell
-    #     file_info:
-    #       mode: 0644
+    contents:
+      - src: ./app/completion.bash
+        dst: /usr/share/bash-completion/completions/etcd-shell
+        file_info:
+          mode: 0644
+      - src: ./app/completion.fish
+        dst: /usr/share/fish/vendor_completions.d/etcd-shell.fish
+        file_info:
+          mode: 0644
+      - src: ./app/completion.zsh
+        dst:  /usr/share/zsh/vendor-completions/etcd-shell
+        file_info:
+          mode: 0644
 
 # dockers:
 #   - image_templates:
