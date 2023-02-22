@@ -42,11 +42,16 @@ func (c *Completer) Complete(d prompt.Document) []prompt.Suggest {
 			if Endpointlist == "" {
 				return connCmd
 			}
-			return commands
+			//return commands
+			fmt.Println("help")
+			help()
+			return []prompt.Suggest{}
 		}
-		//return commands
 		return []prompt.Suggest{}
+	} else if d.TextBeforeCursor() == " " {
+		return commands
 	}
+
 	return c.argumentsCompleter(d)
 
 }

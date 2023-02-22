@@ -33,6 +33,8 @@ func (c *Completer) Executor(s string) {
 		}
 	} else {
 		switch args[0] {
+		case "help":
+			help()
 		case "cp":
 			c.cp(args)
 		case "rm":
@@ -54,6 +56,17 @@ func (c *Completer) Executor(s string) {
 		case "pwd":
 			fmt.Println(Pwd)
 		}
+	}
+}
+
+func help() {
+	fmt.Println("Available commands:")
+	for _, cmd := range commands {
+		tab := "\t"
+		if len(cmd.Text) < 5 {
+			tab += "\t"
+		}
+		fmt.Printf("  %s:%s%s\n", cmd.Text, tab, cmd.Description)
 	}
 }
 

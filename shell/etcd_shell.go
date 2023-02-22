@@ -38,6 +38,7 @@ func RunShell() {
 	fmt.Printf("etcd-shell\n")
 	fmt.Println("Please use `exit` or `Ctrl-D` to exit this program.")
 	defer fmt.Println("Bye!")
+
 	p := prompt.New(
 		c.Executor,
 		c.Complete,
