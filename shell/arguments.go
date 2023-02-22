@@ -19,13 +19,13 @@ var commands = []prompt.Suggest{
 	{Text: "ls", Description: "List emplacements"},
 	{Text: "cd", Description: "Navigate in emplacements"},
 	{Text: "pwd", Description: "Show current emplacement"},
-	{Text: "dump", Description: "Dump content has json"},
+	{Text: "dump", Description: "Dump content as json"},
 	{Text: "cp", Description: "Copy emplacements"},
 	{Text: "set", Description: "Set/Add a key/Value pair"},
 	{Text: "rm", Description: "Delete an emplacement"},
 	{Text: "watch", Description: "Watch for modifications"},
+	{Text: "disconnect", Description: "Disconnect from ETCD"},
 	{Text: "exit", Description: "Exit shell"},
-	{Text: "disconnect", Description: "Disconnect ETCD"},
 }
 
 var dumpOpt = []prompt.Suggest{
