@@ -204,8 +204,18 @@ func (c *Completer) rm(args []string) {
 	}
 }
 
-func (c *Completer) Set(args []string) {
-	c.set(args)
+func (c *Completer) Set(key, value string) {
+	err := c.etcd.Put(key, value)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	bval, err := c.etcd.GetValue(key)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	tools.PrintKeyValue(key, string(bval))
 }
 
 func (c *Completer) set(args []string) {
@@ -371,6 +381,20 @@ func (c *Completer) cat(args []string) {
 			tools.PrintKeyValue(key, tmp_val)
 		}
 	}
+}
+
+func (c *Completer) GetValue(path string) string {
+	res, err := c.etcd.GetValue(path)
+	if err == nil {
+		if len(res) == 1 {
+			fmt.Printf("%v is not a key\n ", path)
+			return ""
+		}
+		val := string(res)
+		val = strings.ReplaceAll(val, `"`, `\"`)
+		return val
+	}
+	return ""
 }
 
 func (c *Completer) Watch(args []string) {

@@ -126,24 +126,42 @@ var watchCmd = &cobra.Command{
 	},
 }
 
+func setCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	var res []string
+	if len(args) == 0 {
+		return keyCompletion(cmd, args, toComplete)
+	} else {
+		c, err := shell.NewCompleter()
+		if err != nil {
+			fmt.Println("error", err)
+			os.Exit(1)
+		}
+		val := c.GetValue(args[0])
+		if val != "" {
+			res = append(res, val)
+		}
+	}
+	return res, cobra.ShellCompDirectiveNoFileComp
+}
+
 var setCmd = &cobra.Command{
 	Use:               "set",
 	Short:             "set a key's value",
 	Long:              "Set key's value.",
-	ValidArgsFunction: keyCompletion,
+	ValidArgsFunction: setCompletion,
 	Run: func(cmd *cobra.Command, args []string) {
 		c, err := shell.NewCompleter()
 		if err != nil {
 			fmt.Println("error", err)
 			os.Exit(1)
 		}
-		keys := []string{""}
-		val := ""
-		if len(args) > 0 {
-			val = strings.Join(args[:], "/")
-			keys = append(keys, val)
+		if len(args) == 2 {
+			c.Set(args[0], args[1])
+			return
+		} else {
+			fmt.Println("Please provide a key and a value")
+			os.Exit(1)
 		}
-		c.Set(keys)
 	},
 }
 
