@@ -391,7 +391,8 @@ func (c *Completer) GetValue(path string) string {
 			return ""
 		}
 		val := string(res)
-		val = strings.ReplaceAll(val, `"`, `\"`)
+		//val = "'" + strings.ReplaceAll(val, `"`, `\"`) + "'"
+		val = `\'` + strings.ReplaceAll(val, `"`, `\"`) + `\'`
 		return val
 	}
 	return ""
