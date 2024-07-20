@@ -7,10 +7,10 @@ app:
 	chmod 774 app/etcd-shell
 
 completion:
-	go run main.go completion bash > app/completion.bash
-	go run main.go completion zsh > app/completion.zsh
-	go run main.go completion fish > app/completion.fish
-	go run main.go completion powershell > app/completion.powershell
+	go run main.go --endpoints "" completion bash > app/completion.bash
+	go run main.go --endpoints "" completion zsh > app/completion.zsh
+	go run main.go --endpoints "" completion fish > app/completion.fish
+	go run main.go --endpoints "" completion powershell > app/completion.powershell
 
 dirs:
 	mkdir -p app

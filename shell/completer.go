@@ -15,7 +15,6 @@ type Completer struct {
 }
 
 func connectEtcd(etcd *etcd_client.Etcd) {
-	fmt.Printf("connecting to endpoints %v\n", Endpointlist)
 	Pwd = ""
 	etcd.Connect(Endpointlist, User, Password, UseTls)
 	res, err := etcd.GetObject(Pwd)

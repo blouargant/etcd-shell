@@ -6,26 +6,167 @@ package connect
 import (
 	"etcd-shell/cmd"
 	"etcd-shell/shell"
+	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
-var connectCmd = &cobra.Command{
-	Use:   "connect",
-	Short: "connect to etcd",
+var shellCmd = &cobra.Command{
+	Use:   "shell",
+	Short: "interactive shell",
 	Run: func(cmd *cobra.Command, args []string) {
 		shell.RunShell()
 	},
 }
 
 func init() {
-	cmd.RootCmd.AddCommand(connectCmd)
-	connectCmd.PersistentFlags().StringVarP(&shell.Endpointlist, "endpoints", "e", "", "Comma separated list of endpoints")
-	connectCmd.MarkPersistentFlagRequired("endpoints")
+	//cmd.RootCmd.AddCommand(connectCmd)
+	cmd.RootCmd.PersistentFlags().StringVarP(&shell.Endpointlist, "endpoints", "e", "", "Comma separated list of endpoints")
+	cmd.RootCmd.MarkPersistentFlagRequired("endpoints")
+	cmd.RootCmd.PersistentFlags().StringVarP(&shell.User, "user", "u", "", "ETCD user")
+	cmd.RootCmd.PersistentFlags().StringVarP(&shell.Password, "password", "p", "", "ETCD password")
+	cmd.RootCmd.MarkFlagsRequiredTogether("user", "password")
+	cmd.RootCmd.PersistentFlags().BoolVarP(&shell.UseTls, "tls", "t", false, "Use TLS for ETCD connection")
 
-	connectCmd.PersistentFlags().StringVarP(&shell.User, "user", "u", "", "ETCD user")
-	connectCmd.PersistentFlags().StringVarP(&shell.Password, "password", "p", "", "ETCD password")
-	connectCmd.MarkFlagsRequiredTogether("user", "password")
+	cmd.RootCmd.AddCommand(shellCmd)
+	cmd.RootCmd.AddCommand(lsCmd)
+	cmd.RootCmd.AddCommand(catCmd)
+	cmd.RootCmd.AddCommand(watchCmd)
+	cmd.RootCmd.AddCommand(setCmd)
+	cmd.RootCmd.AddCommand(rmCmd)
+}
 
-	connectCmd.PersistentFlags().BoolVarP(&shell.UseTls, "tls", "t", false, "Use TLS for ETCD connection")
+func keyCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if len(args) > 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	c, err := shell.NewCompleter()
+	if err != nil {
+		fmt.Println("error", err)
+		os.Exit(1)
+	}
+	candidates := c.KeyCompletion(toComplete)
+	return candidates, cobra.ShellCompDirectiveNoFileComp
+}
+
+func dirCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	var res []string
+	lst, opt := keyCompletion(cmd, args, toComplete)
+	for _, c := range lst {
+		res = append(res, c)
+		if strings.HasSuffix(c, "/") {
+			res = append(res, c)
+		}
+	}
+	return res, opt
+}
+
+var lsCmd = &cobra.Command{
+	Use:               "ls",
+	Short:             "list directory",
+	Long:              "List a directory.",
+	ValidArgsFunction: dirCompletion,
+	Run: func(cmd *cobra.Command, args []string) {
+		c, err := shell.NewCompleter()
+		if err != nil {
+			fmt.Println("error", err)
+			os.Exit(1)
+		}
+		keys := []string{""}
+		val := ""
+		if len(args) > 0 {
+			val = strings.Join(args[:], "/")
+			keys = append(keys, val)
+		}
+		c.List(keys)
+	},
+}
+
+var catCmd = &cobra.Command{
+	Use:               "cat",
+	Short:             "cat keys' value",
+	Long:              "Show a directory content.",
+	ValidArgsFunction: keyCompletion,
+	Run: func(cmd *cobra.Command, args []string) {
+		c, err := shell.NewCompleter()
+		if err != nil {
+			fmt.Println("error", err)
+			os.Exit(1)
+		}
+		keys := []string{""}
+		val := ""
+		if len(args) > 0 {
+			val = strings.Join(args[:], "/")
+			keys = append(keys, val)
+		}
+		c.Show(keys)
+	},
+}
+
+var watchCmd = &cobra.Command{
+	Use:               "Watch",
+	Short:             "watch keys",
+	Long:              "watch a directory for modifications.",
+	ValidArgsFunction: keyCompletion,
+	Run: func(cmd *cobra.Command, args []string) {
+		c, err := shell.NewCompleter()
+		if err != nil {
+			fmt.Println("error", err)
+			os.Exit(1)
+		}
+		keys := []string{""}
+		val := ""
+		if len(args) > 0 {
+			val = strings.Join(args[:], "/")
+			keys = append(keys, val)
+		}
+		c.Watch(keys)
+	},
+}
+
+var setCmd = &cobra.Command{
+	Use:               "set",
+	Short:             "set a key's value",
+	Long:              "Set key's value.",
+	ValidArgsFunction: keyCompletion,
+	Run: func(cmd *cobra.Command, args []string) {
+		c, err := shell.NewCompleter()
+		if err != nil {
+			fmt.Println("error", err)
+			os.Exit(1)
+		}
+		keys := []string{""}
+		val := ""
+		if len(args) > 0 {
+			val = strings.Join(args[:], "/")
+			keys = append(keys, val)
+		}
+		c.Set(keys)
+	},
+}
+
+var rmCmd = &cobra.Command{
+	Use:               "rm",
+	Short:             "delete keys",
+	Long:              "Delete a key or a directory.",
+	ValidArgsFunction: keyCompletion,
+	Run: func(cmd *cobra.Command, args []string) {
+		c, err := shell.NewCompleter()
+		if err != nil {
+			fmt.Println("error", err)
+			os.Exit(1)
+		}
+		keys := []string{""}
+		val := ""
+		if len(args) > 0 {
+			val = strings.Join(args[:], "/")
+			keys = append(keys, val)
+		} else {
+			fmt.Println("Please provide a key to delete")
+			os.Exit(1)
+		}
+		c.Delete(keys)
+	},
 }

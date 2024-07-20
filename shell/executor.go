@@ -156,6 +156,10 @@ func (c *Completer) cp(args []string) {
 	}
 }
 
+func (c *Completer) Delete(args []string) {
+	c.rm(args)
+}
+
 func (c *Completer) rm(args []string) {
 	var confirmed, forced, recursiv bool
 	var final_args []string
@@ -200,6 +204,10 @@ func (c *Completer) rm(args []string) {
 	}
 }
 
+func (c *Completer) Set(args []string) {
+	c.set(args)
+}
+
 func (c *Completer) set(args []string) {
 	var path string
 	if len(args) > 2 {
@@ -232,6 +240,10 @@ func (c *Completer) cd(args []string) {
 	}
 	//fmt.Println(path)
 	Pwd = path
+}
+
+func (c *Completer) List(args []string) {
+	c.ls(args)
 }
 
 func (c *Completer) ls(args []string) {
@@ -277,6 +289,56 @@ func (c *Completer) ls(args []string) {
 	}
 }
 
+func (c *Completer) KeyCompletion(toComplete string) []string {
+	result := []string{}
+	//res, err := c.etcd.GetObject(toComplete)
+	res, err := c.etcd.ListKeys(toComplete)
+	if err != nil {
+		return result
+	}
+	keys := strings.Split(toComplete, "/")
+	idx := len(keys) - 1
+	if idx < 0 {
+		idx = 0
+	}
+	var sorted, all, kinds []string
+	for _, d := range res {
+		d_args := strings.Split(d, SEP)
+		if len(d_args) > 0 {
+			var prefix string
+			if len(d_args) < idx+1 {
+				prefix = d
+			} else {
+				prefix = strings.Join(d_args[:idx+1], SEP)
+			}
+			if !tools.Contains(all, prefix) {
+				all = append(all, prefix)
+				sorted = append(sorted, prefix)
+				if len(d_args)-idx > 1 {
+					kinds = append(kinds, "dir")
+				} else {
+					kinds = append(kinds, "file")
+				}
+			}
+		}
+	}
+	sort.Strings(sorted)
+	for _, s := range sorted {
+		idx := tools.IndexOf(all, s)
+		switch kinds[idx] {
+		case "dir":
+			result = append(result, s+"/")
+		case "file":
+			result = append(result, s)
+		}
+	}
+	return result
+}
+
+func (c *Completer) Show(args []string) {
+	c.cat(args)
+}
+
 func (c *Completer) cat(args []string) {
 	var path string
 	if len(args) > 1 {
@@ -309,6 +371,10 @@ func (c *Completer) cat(args []string) {
 			tools.PrintKeyValue(key, tmp_val)
 		}
 	}
+}
+
+func (c *Completer) Watch(args []string) {
+	c.watch(args)
 }
 
 func (c *Completer) watch(args []string) {

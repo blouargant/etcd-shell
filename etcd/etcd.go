@@ -169,6 +169,26 @@ func (etcd *Etcd) GetObject(key_path string) (map[string][]byte, error) {
 	return result, err
 }
 
+func (etcd *Etcd) ListKeys(key_path string) ([]string, error) {
+	var err error
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+	resp, err := etcd.KV.Get(ctx, key_path, clientv3.WithPrefix())
+	cancel()
+	var result []string
+	if err != nil {
+		return result, err
+	}
+	var exists bool = false
+	for _, ev := range resp.Kvs {
+		exists = true
+		result = append(result, string(ev.Key))
+	}
+	if !exists {
+		err = fmt.Errorf("path does not exists")
+	}
+	return result, err
+}
+
 func (etcd *Etcd) GetObjectList(key_path string) ([]map[string][]byte, error) {
 	var err error
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
