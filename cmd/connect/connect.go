@@ -106,7 +106,7 @@ var catCmd = &cobra.Command{
 }
 
 var watchCmd = &cobra.Command{
-	Use:               "Watch",
+	Use:               "watch",
 	Short:             "watch keys",
 	Long:              "watch a directory for modifications.",
 	ValidArgsFunction: keyCompletion,
