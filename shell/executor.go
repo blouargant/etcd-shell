@@ -156,7 +156,14 @@ func (c *Completer) cp(args []string) {
 	}
 }
 
-func (c *Completer) Delete(args []string) {
+func (c *Completer) Delete(path string, recursive, force bool) {
+	args := []string{"rm", path}
+	if recursive {
+		args = append(args, "-r")
+	}
+	if force {
+		args = append(args, "-f")
+	}
 	c.rm(args)
 }
 

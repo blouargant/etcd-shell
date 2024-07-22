@@ -13,6 +13,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	force     bool
+	recursive bool
+)
+
 var shellCmd = &cobra.Command{
 	Use:   "shell",
 	Short: "interactive shell",
@@ -36,6 +41,8 @@ func init() {
 	cmd.RootCmd.AddCommand(watchCmd)
 	cmd.RootCmd.AddCommand(setCmd)
 	cmd.RootCmd.AddCommand(rmCmd)
+	rmCmd.Flags().BoolVarP(&recursive, "recursive", "r", false, "Delete recursively. Mandatory for directories")
+	rmCmd.Flags().BoolVarP(&force, "force", "f", false, "Force delete.")
 }
 
 func keyCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
@@ -176,15 +183,13 @@ var rmCmd = &cobra.Command{
 			fmt.Println("error", err)
 			os.Exit(1)
 		}
-		keys := []string{""}
 		val := ""
 		if len(args) > 0 {
 			val = strings.Join(args[:], "/")
-			keys = append(keys, val)
 		} else {
 			fmt.Println("Please provide a key to delete")
 			os.Exit(1)
 		}
-		c.Delete(keys)
+		c.Delete(val, recursive, force)
 	},
 }
