@@ -439,6 +439,15 @@ func watch(ctx context.Context, path string, c *Completer) {
 	}
 }
 
+func (c *Completer) Dump(path string, json bool) {
+	args := []string{"dump"}
+	if json {
+		args = append(args, "-j")
+	}
+	args = append(args, path)
+	c.dump(args)
+}
+
 func (c *Completer) dump(args []string) {
 	var path string
 	var value_json bool

@@ -16,6 +16,7 @@ import (
 var (
 	force     bool
 	recursive bool
+	json      bool
 )
 
 var shellCmd = &cobra.Command{
@@ -38,6 +39,8 @@ func init() {
 	cmd.RootCmd.AddCommand(shellCmd)
 	cmd.RootCmd.AddCommand(lsCmd)
 	cmd.RootCmd.AddCommand(catCmd)
+	cmd.RootCmd.AddCommand(dumpCmd)
+	dumpCmd.Flags().BoolVarP(&json, "json", "j", false, "Output in json format")
 	cmd.RootCmd.AddCommand(watchCmd)
 	cmd.RootCmd.AddCommand(setCmd)
 	cmd.RootCmd.AddCommand(rmCmd)
@@ -109,6 +112,25 @@ var catCmd = &cobra.Command{
 			keys = append(keys, val)
 		}
 		c.Show(keys)
+	},
+}
+
+var dumpCmd = &cobra.Command{
+	Use:               "dump",
+	Short:             "dump a directory content.",
+	Long:              "Show a directory content.",
+	ValidArgsFunction: keyCompletion,
+	Run: func(cmd *cobra.Command, args []string) {
+		c, err := shell.NewCompleter()
+		if err != nil {
+			fmt.Println("error", err)
+			os.Exit(1)
+		}
+		val := ""
+		if len(args) > 0 {
+			val = strings.Join(args[:], "/")
+		}
+		c.Dump(val, json)
 	},
 }
 
